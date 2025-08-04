@@ -20,7 +20,12 @@ NOMES_PARA_BUSCAR = [
     "Nicole Ari Parker", # Lisa Todd Wexley
     "Karen Pittman", # Dr. Nya Wallace
     "David Eigenberg", # Steve Brady
-    "Evan Handler" # Harry Goldenblatt
+    "Evan Handler", # Harry Goldenblatt
+    "John Corbett",
+    "Willie Garson",
+    "Mario Cantone",
+    "Jason Lewis",
+    "Lynn Cohen"
 ]
 
 # Função para buscar o ID da pessoa
