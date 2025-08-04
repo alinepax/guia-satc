@@ -16,22 +16,20 @@ def check_password():
     if st.session_state.password_correct:
         return True
 
+    # Usa st.form para agrupar o input e o botão
     with st.form("password_form"):
         st.markdown("### Por favor, digite a senha para acessar o guia:")
         password = st.text_input("Senha", type="password", label_visibility="collapsed")
         submitted = st.form_submit_button("Entrar")
 
         if submitted:
+            # Compara a senha digitada com a senha guardada nos Secrets
             if password == st.secrets["APP_PASSWORD"]:
                 st.session_state.password_correct = True
-                st.rerun()
+                st.rerun()  # Recarrega a página para mostrar o app
             else:
                 st.error("Senha incorreta. Tente novamente.")
     return False
-
-# --- PONTO DE ENTRADA DO APP ---
-if not check_password():
-    st.stop()
 
 # --- CONFIGURAÇÕES E DADOS GLOBAIS ---
 
@@ -87,14 +85,14 @@ DATE_IDEAS_RJ = [
     {"title": "Passeio Parisiense no Centro do Rio 🌳", "description": "Que tal uma caminhada romântica pela Praça Paris? Seus jardins inspirados em Versalhes são o cenário perfeito para a gente se sentir em um filme. Depois, podemos procurar um bom lugar para comer ali pelo Centro."}
 ]
 ICONIC_PLACES_DATA = {
-    'Nome': ["Apartamento da Carrie (fachada)", "Magnolia Bakery", "New York Public Library", "The Plaza Hotel", "The Loeb Boathouse (Central Park)", "Scout Bar (Onieal's)", "Buddakan Restaurant", "Columbus Circle Fountain", "Jefferson Market Garden"],
+    'Nome': ["Apartamento da Carrie", "Magnolia Bakery", "New York Public Library", "The Plaza Hotel", "The Loeb Boathouse (Central Park)", "Scout Bar (Onieal's)", "Buddakan Restaurant", "Columbus Circle Fountain", "Jefferson Market Garden"],
     'lat': [40.7389, 40.7423, 40.7531, 40.7647, 40.7753, 40.7198, 40.7424, 40.7680, 40.7354],
     'lon': [-74.0015, -74.0044, -73.9822, -73.9747, -73.9688, -74.0003, -74.0040, -73.9819, -74.0010],
     'Descrição': ["A famosa escadaria onde tantos looks, beijos e momentos aconteceram. O endereço mais icônico da série, no coração do West Village.", "O lugar que iniciou a febre mundial por cupcakes, graças a uma cena rápida de Carrie e Miranda. Parada obrigatória para um doce.", "O grandioso cenário do (quase) casamento de Carrie e Big no primeiro filme. Um lugar que guarda todas as grandes histórias de amor.", "Palco de muitos momentos, mas principalmente da festa de noivado de Big e Natasha, que partiu o coração de Carrie.", "Onde Carrie e Big se encontram para um almoço e acabam caindo (de forma hilária e romântica) no lago do Central Park.", "O bar de Aidan e Steve! Na vida real, o Onieal's é um speakeasy charmoso, palco de muitas conversas e dilemas da série.", "O restaurante asiático deslumbrante onde aconteceu o jantar de ensaio do casamento de Carrie e Big. Pura opulência e glamour.", "A fonte onde Carrie e Aidan terminam o noivado. Um lugar lindo para um momento tão agridoce e decisivo na história.", "O jardim secreto e encantador no West Village onde Miranda e Steve se casaram, provando que o amor não precisa de formalidades." ]
 }
 df_places = pd.DataFrame(ICONIC_PLACES_DATA)
 
-# --- FUNÇÕES DE API (CACHEADAS) ---
+# --- FUNÇÕES DE API ---
 @st.cache_data
 def buscar_detalhes_serie(serie_id):
     url = f"https://api.themoviedb.org/3/tv/{serie_id}?api_key={TMDB_API_KEY}&language=pt-BR"
@@ -119,6 +117,10 @@ def buscar_detalhes_ator(ator_id):
     resposta = requests.get(url)
     return resposta.json() if resposta.status_code == 200 else None
 
+# --- PONTO DE ENTRADA DO APP E VERIFICAÇÃO DE SENHA ---
+if not check_password():
+    st.stop() # Se a senha não estiver correta, para a execução aqui
+
 # --- CONFIGURAÇÃO DA PÁGINA E CSS ---
 st.set_page_config(page_title="Guia SATC", page_icon="🍸")
 
@@ -128,6 +130,7 @@ st.markdown("""
     html, body { overflow-x: hidden; }
     .main-title { font-family: 'Great Vibes', cursive; font-weight: 400; font-style: normal; font-size: clamp(3.5em, 8vw, 7em); text-align: center; color: #F8B4D9; overflow-wrap: break-word; }
     .sub-title { text-align: center; color: #CCCCCC; font-style: italic; font-size: 1.2em; margin-top: -20px; }
+    .menu-header { text-align: center; color: #CCCCCC; font-style: italic; font-size: 1.5em; margin-top: 20px; margin-bottom: 20px; }
     div[data-testid="column"] img { max-width: 180px; display: block; margin-left: auto; margin-right: auto; }
     </style>
 """, unsafe_allow_html=True)
@@ -144,13 +147,17 @@ if 'sugestao_atual' not in st.session_state: st.session_state.sugestao_atual = N
 # --- CABEÇALHO PRINCIPAL ---
 st.markdown('<p class="main-title">I Couldn\'t Help But Wonder...</p>', unsafe_allow_html=True)
 st.markdown('<p class="sub-title">... um guia definitivo de Sex and the City, feito com amor para a Sara <span style="color: #F8B4D9;">❤️</span></p>', unsafe_allow_html=True)
+
+# Marcador invisível no topo da página para o link "Voltar ao Topo"
+st.markdown('<a name="top"></a>', unsafe_allow_html=True)
+
 st.markdown("---")
 
 # --- LÓGICA DE NAVEGAÇÃO E EXIBIÇÃO DAS PÁGINAS ---
 
 # PÁGINA INICIAL (MENU)
 if st.session_state.pagina_ativa == "INICIO":
-    st.header("O que você quer explorar hoje?")
+    st.markdown('<p class="menu-header">O que você quer explorar hoje?</p>', unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
     with col1:
@@ -177,7 +184,7 @@ elif st.session_state.pagina_ativa == "GUIA":
         st.session_state.pagina_ativa = "INICIO"
         st.rerun()
     st.markdown("---")
-
+    
     tipo_conteudo = st.radio(
         "Escolha uma categoria:",
         ("Séries", "Filmes", "Personagens"),
@@ -410,6 +417,7 @@ elif st.session_state.pagina_ativa == "TRILHA":
 st.markdown("---")
 st.markdown("""
 <div style="text-align: center; font-size: 0.9em; color: grey;">
+    <p><a href="#top" style="text-decoration: none; color: grey;">⬆️ Voltar ao Topo</a></p>
     <p>Desenvolvido com ❤️ por <strong>Aline Paz</strong></p>
     <p>Dados de filmes e séries fornecidos por <a href="https://www.themoviedb.org/" target="_blank">TMDb</a>.</p>
 </div>
