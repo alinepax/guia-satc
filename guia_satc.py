@@ -14,7 +14,7 @@ def check_password():
     if st.session_state.password_correct:
         return True
     with st.form("password_form"):
-        st.markdown("### Por favor, digite a senha para acessar o guia:")
+        st.markdown("### Oi amor! Digite a senha para acessar o guia (dica: a bebida favorita da Carrie):")
         password = st.text_input("Senha", type="password", label_visibility="collapsed")
         submitted = st.form_submit_button("Entrar")
         if submitted:
