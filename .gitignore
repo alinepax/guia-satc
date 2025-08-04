@@ -1,0 +1,20 @@
+# Arquivo de segredos
+# NUNCA envie este arquivo para o GitHub!
+.env
+
+# Arquivos de ambiente virtual do Python
+venv/
+*.venv
+env/
+.env/
+
+# Pastas de cache e arquivos compilados do Python
+__pycache__/
+*.pyc
+
+# Pasta de configuração local do Streamlit
+.streamlit/
+
+# Arquivos de sistema operacional (opcional, mas boa prática)
+.DS_Store
+Thumbs.db
