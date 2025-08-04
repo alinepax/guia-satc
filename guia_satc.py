@@ -6,6 +6,33 @@ import pandas as pd
 from dotenv import load_dotenv
 import streamlit.components.v1 as components
 
+# --- FUNÇÃO DE VERIFICAÇÃO DE SENHA ---
+def check_password():
+    """Retorna `True` se a senha estiver correta ou se o login já foi feito."""
+
+    if "password_correct" not in st.session_state:
+        st.session_state.password_correct = False
+
+    if st.session_state.password_correct:
+        return True
+
+    with st.form("password_form"):
+        st.markdown("### Por favor, digite a senha para acessar o guia:")
+        password = st.text_input("Senha", type="password", label_visibility="collapsed")
+        submitted = st.form_submit_button("Entrar")
+
+        if submitted:
+            if password == st.secrets["APP_PASSWORD"]:
+                st.session_state.password_correct = True
+                st.rerun()
+            else:
+                st.error("Senha incorreta. Tente novamente.")
+    return False
+
+# --- PONTO DE ENTRADA DO APP ---
+if not check_password():
+    st.stop()
+
 # --- CONFIGURAÇÕES E DADOS GLOBAIS ---
 
 # Carrega as chaves secretas do ficheiro .env
